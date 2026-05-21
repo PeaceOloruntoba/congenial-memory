@@ -1,6 +1,6 @@
 export default function App() {
   return (
-    <div className="flex flex-col gap-2 items-center justify-center w-screen h-screen bg-emerald-800 text-center">
+    <div className="flex flex-col gap-2 items-center justify-center w-screen h-screen bg-blue-600 text-center">
       <span className="text-5xl font-semibold animate-pulse text-white">Welcome!!</span>
       <span className="text-5xl font-semibold animate-bounce text-white">I am Peace.</span>
     </div>
