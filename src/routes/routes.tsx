@@ -15,18 +15,24 @@ import TaskControls from "../pages/admin/TaskControls";
 import AuditLog from "../pages/admin/AuditLog";
 import PrivateRoute from "./PrivateRoute";
 import AdminRoute from "./AdminRoute";
+import LandingPage from "../pages/LandingPage";
+import NotFoundPage from "../pages/NotFoundPage";
 
 export const AppRoutes = () => {
   const routes = useRoutes([
-    // User Protected Sub-Routes Layout Tree
+    // Public Facing Main Landing Page
+    { path: "/", element: <LandingPage /> },
+
+    // User Protected Sub-Routes Layout Tree (/app/*)
     {
-      path: "/",
+      path: "app",
       element: <PrivateRoute />,
       children: [
         {
           element: <AppLayout />,
           children: [
-            { index: true, element: <HomePage /> },
+            { index: true, element: <Navigate to="home" replace /> },
+            { path: "home", element: <HomePage /> },
             { path: "tasks", element: <TasksPage /> },
             { path: "reward", element: <RewardPage /> },
             { path: "wallet", element: <WalletPage /> },
@@ -34,16 +40,19 @@ export const AppRoutes = () => {
         },
       ],
     },
+
     // Public Facing Context / Auth Screens Layout Tree
     {
       path: "auth",
       element: <AuthLayout />,
       children: [
+        { index: true, element: <Navigate to="login" replace /> },
         { path: "login", element: <LoginPage /> },
         { path: "register", element: <RegisterPage /> },
         { path: "forgot", element: <ForgotPasswordPage /> },
       ],
     },
+
     // Administration Control Platform Layout Tree
     {
       path: "admin",
@@ -52,7 +61,8 @@ export const AppRoutes = () => {
         {
           element: <AdminLayout />,
           children: [
-            { index: true, element: <AdminDashboard /> },
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            { path: "dashboard", element: <AdminDashboard /> },
             { path: "users", element: <UserManagement /> },
             { path: "tasks", element: <TaskControls /> },
             { path: "audit", element: <AuditLog /> },
@@ -60,8 +70,10 @@ export const AppRoutes = () => {
         },
       ],
     },
-    // Fallback Redirection Wildcard
-    { path: "*", element: <Navigate to="/" replace /> },
+
+    // Fallback Redirection System 404 Routing Endpoint
+    { path: "404", element: <NotFoundPage /> },
+    { path: "*", element: <Navigate to="/404" replace /> },
   ]);
 
   return routes;

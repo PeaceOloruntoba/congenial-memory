@@ -4,10 +4,10 @@ import { Home, Layers, Trophy, Wallet } from "lucide-react";
 
 export const BottomNav: React.FC = () => {
   const tabs = [
-    { to: "/", label: "Home", icon: Home },
-    { to: "/tasks", label: "Tasks", icon: Layers },
-    { to: "/reward", label: "Reward", icon: Trophy },
-    { to: "/wallet", label: "Wallet", icon: Wallet },
+    { to: "/app/home", label: "Home", icon: Home },
+    { to: "/app/tasks", label: "Tasks", icon: Layers },
+    { to: "/app/reward", label: "Reward", icon: Trophy },
+    { to: "/app/wallet", label: "Wallet", icon: Wallet },
   ];
 
   return (

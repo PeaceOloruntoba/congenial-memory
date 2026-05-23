@@ -7,14 +7,16 @@ import {
   ArrowUpRight,
   ChevronRight,
   User,
+  LogOut,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useWalletStore } from "../../store/walletStore";
-import {Card} from "../../components/ui/Card";
-import {Badge} from "../../components/ui/Badge";
+import { Card } from "../../components/ui/Card";
+import { Badge } from "../../components/ui/Badge";
 
 export const HomePage: React.FC = () => {
   const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const triggerVerification = useAuthStore((s) => s.triggerProfileCompletion);
   const { totalAsset, assetBalance } = useWalletStore();
 
@@ -37,19 +39,30 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Real-time Status Badge */}
-          {user?.verified ? (
-            <div className="flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full text-xs font-bold">
-              <ShieldCheck className="w-3.5 h-3.5" /> Verified Account
-            </div>
-          ) : (
+          {/* Right Action Stack: Verification & Logout */}
+          <div className="flex items-center gap-2">
+            {user?.verified ? (
+              <div className="flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-full text-[10px] font-bold">
+                <ShieldCheck className="w-3 h-3" /> Verified
+              </div>
+            ) : (
+              <button
+                onClick={triggerVerification}
+                className="flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full text-[10px] font-bold animate-pulse cursor-pointer"
+              >
+                <ShieldAlert className="w-3 h-3" /> Verify
+              </button>
+            )}
+
+            {/* Quick Action Logout Anchor Button Component */}
             <button
-              onClick={triggerVerification}
-              className="flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1 rounded-full text-xs font-bold animate-pulse cursor-pointer"
+              onClick={() => logout()}
+              className="w-8 h-8 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10 hover:bg-white/20 active:scale-95 transition-all text-white/80 hover:text-white cursor-pointer"
+              title="Terminate Session"
             >
-              <ShieldAlert className="w-3.5 h-3.5" /> Complete KYC
+              <LogOut className="w-4 h-4" />
             </button>
-          )}
+          </div>
         </div>
 
         {/* Floating Quick Balance Capsule inside Header */}
@@ -81,7 +94,7 @@ export const HomePage: React.FC = () => {
       <div className="px-5 -mt-6 space-y-5 z-10">
         {/* Core Actions Grid Selection */}
         <div className="grid grid-cols-2 gap-3.5">
-          <Card className="flex items-center justify-between p-4 cursor-pointer group active:scale-95 transition-transform">
+          <Card className="flex items-center justify-between p-4 cursor-pointer group active:scale-95 transition-transform bg-white">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#1A6CFA]/10 rounded-xl flex items-center justify-center text-[#1A6CFA]">
                 <Grid className="w-5 h-5" />
@@ -98,7 +111,7 @@ export const HomePage: React.FC = () => {
             <ArrowUpRight className="w-4 h-4 text-gray-300 group-hover:text-[#1A6CFA] transition-colors" />
           </Card>
 
-          <Card className="flex items-center justify-between p-4 cursor-pointer group active:scale-95 transition-transform">
+          <Card className="flex items-center justify-between p-4 cursor-pointer group active:scale-95 transition-transform bg-white">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
                 <Award className="w-5 h-5" />
