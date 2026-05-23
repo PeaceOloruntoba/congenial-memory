@@ -1,8 +1,12 @@
-export default function App() {
+import React from 'react';
+import { AppRoutes } from './routes/routes';
+
+const App: React.FC = () => {
   return (
-    <div className="flex flex-col gap-2 items-center justify-center w-screen h-screen bg-blue-600 text-center">
-      <span className="text-5xl font-semibold animate-pulse text-white">Welcome!!</span>
-      <span className="text-5xl font-semibold animate-bounce text-white">I am Peace.</span>
-    </div>
-  )
-}
+    <React.StrictMode>
+      <AppRoutes />
+    </React.StrictMode>
+  );
+};
+
+export default App;
