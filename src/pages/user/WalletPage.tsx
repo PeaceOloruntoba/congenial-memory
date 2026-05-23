@@ -34,8 +34,8 @@ const WalletPage: React.FC = () => {
             {[10,50,100,500,1000].map(v => <button key={v} onClick={() => setAmount(String(v))} className="px-3 py-1 bg-gray-100 rounded">{v}</button>)}
           </div>
           <div className="mt-3 flex space-x-2">
-            <button onClick={() => setNetwork('Ethereum ERC20')} className={`px-3 py-2 rounded ${network==='Ethereum ERC20' ? 'bg-amber-100' : 'bg-gray-100'}`}>Ethereum ERC20</button>
-            <button onClick={() => setNetwork('USDT TRC20')} className={`px-3 py-2 rounded ${network==='USDT TRC20' ? 'bg-amber-100' : 'bg-gray-100'}`}>USDT TRC20</button>
+            <button onClick={() => setNetwork('Ethereum ERC20')} className={`px-3 py-2 rounded ${network==='Ethereum ERC20' ? 'bg-royal-100' : 'bg-gray-100'}`}>Ethereum ERC20</button>
+            <button onClick={() => setNetwork('USDT TRC20')} className={`px-3 py-2 rounded ${network==='USDT TRC20' ? 'bg-royal-100' : 'bg-gray-100'}`}>USDT TRC20</button>
           </div>
           <div className="mt-3 text-right"><Button onClick={() => deposit(Number(amount) || 0)}>Proceed to Pay</Button></div>
         </div>

@@ -1,21 +1,20 @@
-import React from 'react';
 import { useRoutes, Navigate } from 'react-router-dom';
 import AuthLayout from '../layouts/AuthLayout';
 import AppLayout from '../layouts/AppLayout';
 import AdminLayout from '../layouts/AdminLayout';
 import LoginPage from '../pages/auth/LoginPage';
-import RegisterPage from '../pages/auth/RegisterPage';
-import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
+import PrivateRoute from './PrivateRoute';
+import AdminRoute from './AdminRoute';
 import HomePage from '../pages/user/HomePage';
 import TasksPage from '../pages/user/TasksPage';
 import RewardPage from '../pages/user/RewardPage';
 import WalletPage from '../pages/user/WalletPage';
+import RegisterPage from '../pages/auth/RegisterPage';
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import UserManagement from '../pages/admin/UserManagement';
 import TaskControls from '../pages/admin/TaskControls';
 import AuditLog from '../pages/admin/AuditLog';
-import PrivateRoute from './PrivateRoute';
-import AdminRoute from './AdminRoute';
 
 export const AppRoutes = () => {
   const routes = useRoutes([

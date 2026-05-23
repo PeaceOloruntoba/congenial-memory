@@ -12,7 +12,7 @@ const TaskControls: React.FC = () => {
       <Card>
         <div className="flex items-center space-x-2">
           <input className="border p-2 rounded" value={val} onChange={(e)=>setVal(e.target.value)} />
-          <button className="px-3 py-2 bg-amber-500 text-white rounded" onClick={()=>setMaxDaily(Number(val) || 25)}>Set Max Daily</button>
+          <button className="px-3 py-2 bg-royal-500 text-white rounded" onClick={()=>setMaxDaily(Number(val) || 25)}>Set Max Daily</button>
         </div>
       </Card>
     </div>

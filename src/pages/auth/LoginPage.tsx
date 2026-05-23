@@ -21,11 +21,11 @@ const LoginPage: React.FC = () => {
       <Input label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+44..." />
       <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
       <div className="flex justify-between items-center">
-        <Link to="/auth/forgot" className="text-sm text-amber-600">Forgot Password?</Link>
+        <Link to="/auth/forgot" className="text-sm text-royal-500">Forgot Password?</Link>
         <Button type="submit">Login</Button>
       </div>
       <div className="text-center text-sm">
-        <Link to="/auth/register" className="text-amber-600">Create an account</Link>
+        <Link to="/auth/register" className="text-royal-500">Create an account</Link>
       </div>
     </form>
   );

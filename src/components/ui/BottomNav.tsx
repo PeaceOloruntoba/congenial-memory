@@ -11,10 +11,10 @@ export const BottomNav: React.FC = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t py-2 px-4 sm:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t py-2 px-4">
       <div className="flex justify-between">
         {items.map((it) => (
-          <NavLink key={it.to} to={it.to} className={({ isActive }) => `flex-1 text-center py-2 ${isActive ? 'text-amber-500' : 'text-gray-600'}`}>
+          <NavLink key={it.to} to={it.to} className={({ isActive }) => `flex-1 text-center py-2 ${isActive ? 'text-royal-500' : 'text-gray-600'}`}>
             <it.icon className="mx-auto" />
             <div className="text-xs">{it.label}</div>
           </NavLink>
