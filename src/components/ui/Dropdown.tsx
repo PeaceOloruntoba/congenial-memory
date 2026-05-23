@@ -1,12 +1,14 @@
-import React from 'react';
+import type React from "react";
 
-export const Dropdown: React.FC<React.PropsWithChildren<{ label?: string }>> = ({ label, children }) => {
-  return (
-    <div className="relative inline-block text-left">
-      <div className="text-sm text-gray-700">{label}</div>
-      <div className="mt-1 bg-white border rounded-md shadow-sm p-2">{children}</div>
-    </div>
-  );
-};
-
-export default Dropdown;
+export const Dropdown: React.FC<
+  React.PropsWithChildren<{ label?: string; className?: string }>
+> = ({ label, className = "", children }) => (
+  <div className={`relative inline-block text-left w-full ${className}`}>
+    {label && (
+      <label className="text-xs font-bold text-[#0B2253] uppercase tracking-wide block mb-1">
+        {label}
+      </label>
+    )}
+    <div className="relative w-full">{children}</div>
+  </div>
+);
