@@ -1,56 +1,65 @@
-import {create} from 'zustand';
-import { persist } from 'zustand/middleware';
-import { api, type UserProfile } from '../lib/api';
-import { toast } from 'sonner';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { UserProfile } from "../types/auth";
+import { api } from "../lib/api";
+import { toast } from "sonner";
 
-type AuthState = {
-  user?: UserProfile | null;
-  token?: string | null;
+interface AuthState {
+  user: UserProfile | null;
   loading: boolean;
-  login: (phone: string, password: string) => Promise<void>;
+  login: (phone: string, pass: string) => Promise<boolean>;
+  register: (
+    phone: string,
+    pass: string,
+    inviteCode: string,
+  ) => Promise<boolean>;
   logout: () => void;
-  register: (phone: string, password: string, invite?: string) => Promise<void>;
-  setUser: (u?: UserProfile | null) => void;
-};
+  triggerProfileCompletion: () => void;
+}
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, _get) => ({
+    (set) => ({
       user: null,
-      token: null,
       loading: false,
-      setUser: (u) => set({ user: u }),
-      login: async (phone, password) => {
+      login: async (phone, pass) => {
         set({ loading: true });
-        try {
-          const res = await api.login(phone, password);
-          if (res.success) {
-            set({ user: res.user, token: 'mock-token' });
-            toast.success('Logged in');
-          }
-        } catch (e) {
-          toast.error('Login failed');
-        } finally {
-          set({ loading: false });
+        const res = await api.login(phone, pass);
+        set({ loading: false });
+        if (res.success && res.user) {
+          set({ user: res.user });
+          toast.success(`Welcome back, ${res.user.name}`);
+          return true;
         }
+        toast.error("Invalid dynamic credentials");
+        return false;
+      },
+      register: async (phone, pass, invite) => {
+        set({ loading: true });
+        const res = await api.register(phone, pass, invite);
+        set({ loading: false });
+        if (res.success && res.user) {
+          set({ user: res.user });
+          toast.success("Account provisioned successfully!");
+          return true;
+        }
+        toast.error(res.error || "Registration failed");
+        return false;
       },
       logout: () => {
-        set({ user: null, token: null });
-        toast('Logged out');
+        set({ user: null });
+        toast.info("Session disconnected safely.");
       },
-      register: async (phone, password, invite) => {
-        set({ loading: true });
-        try {
-          const res = await api.register(phone, password, invite);
-          if (res.success) {
-            set({ user: res.user, token: 'mock-token' });
-            toast.success('Registration successful');
-          }
-        } finally {
-          set({ loading: false });
-        }
-      }
+      triggerProfileCompletion: () => {
+        set((state) => {
+          if (!state.user) return state;
+          const updated = { ...state.user, verified: true };
+          api.updateDbUser(state.user.id, { verified: true });
+          toast.success("Identity profile fully updated!");
+          return { user: updated };
+        });
+      },
     }),
-    { name: 'congenial.auth' }
-  )
+    { name: "orbit.auth.session" },
+  ),
 );

@@ -1,140 +1,169 @@
-export type UserRole = 'user' | 'admin';
+import type { UserProfile, LoginResponse, RegisterResponse } from "../types/auth";
+import type { TaskMatch } from "../types/task";
 
-export interface UserProfile {
-  id: string;
-  phone: string;
-  name: string;
-  email?: string;
-  verified: boolean;
-  createdAt: string;
-  role: UserRole;
-  balance: number;
-  kycLevel?: 0 | 1 | 2;
-}
+const delay = <T>(value: T, ms = 600): Promise<T> =>
+  new Promise((res) => setTimeout(() => res(value), ms));
 
-export interface TaskMatch {
-  orderId: string;
-  title: string;
-  propertyImage?: string;
-  location?: string;
-  nights?: number;
-  rating?: number;
-  baseValue: number;
-  commission: number;
-}
+// Fallback image constants for luxury hospitality look-and-feel
+const IMAGES = {
+  vienna:
+    "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=600&q=80",
+  barcelona:
+    "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80",
+};
 
-export interface LoginResponse {
-  success: boolean;
-  user?: UserProfile;
-  token?: string;
-  error?: string;
-}
-
-export interface RegisterResponse {
-  success: boolean;
-  user?: UserProfile;
-}
-
-export interface ResetResponse {
-  success: boolean;
-  code?: string;
-}
-
-const mockUsers: Record<string, UserProfile> = {
-  'u1': {
-    id: 'u1',
-    phone: '+441234567890',
-    name: 'Ava Traveler',
-    email: 'ava@example.com',
+// Seed administrative database defaults
+const DEFAULT_USERS: Record<
+  string,
+  UserProfile & { balance: number; bonus: number }
+> = {
+  admin: {
+    id: "admin",
+    phone: "+1000000000",
+    name: "Platform Admin",
     verified: true,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
-    role: 'user',
-    balance: 120.5,
-    kycLevel: 1
+    createdAt: new Date().toISOString(),
+    role: "admin",
+    balance: 0,
+    bonus: 0,
   },
-  'u2': {
-    id: 'u2',
-    phone: '+447700900123',
-    name: 'John Doe',
-    email: 'john@example.com',
+  user1: {
+    id: "user1",
+    phone: "+32490000000",
+    name: "Anastasia 👋",
     verified: false,
     createdAt: new Date().toISOString(),
-    role: 'user',
-    balance: 5.0,
-    kycLevel: 0
+    role: "user",
+    balance: 142.5,
+    bonus: 300.0,
   },
-  'admin': {
-    id: 'admin',
-    phone: '+10000000000',
-    name: 'Platform Admin',
-    email: 'admin@platform.local',
-    verified: true,
-    createdAt: new Date().toISOString(),
-    role: 'admin',
-    balance: 0,
-    kycLevel: 2
-  }
 };
 
-const mockProperties = [
-  { id: 'p1', title: 'Ocean View Suite - Stays Royale', image: '/assets/property.jpg', tag: 'Recommended' },
-  { id: 'p2', title: 'Grand Palace Suite', image: '/assets/property-2.jpg', tag: 'Popular' }
-];
-
-function delay<T>(value: T, ms = 600): Promise<T> {
-  return new Promise((res) => setTimeout(() => res(value), ms));
+if (!localStorage.getItem("orbit_db_users")) {
+  localStorage.setItem("orbit_db_users", JSON.stringify(DEFAULT_USERS));
 }
 
-let settings = {
-  commissionMultiplier: 1.0,
-  maxDailyTasks: 25
-};
-
 export const api = {
-  getProperties: async () => {
-    return delay(mockProperties, 400);
+  getAdminSettings: () => {
+    const data = localStorage.getItem("orbit_admin_settings");
+    return data
+      ? JSON.parse(data)
+      : { commissionMultiplier: 0.108, maxDailyTasks: 25 };
   },
-  login: async (phone: string, password: string): Promise<LoginResponse> => {
-    const user = Object.values(mockUsers).find(u => u.phone === phone) || mockUsers['u1'];
-    return delay({ success: true, user, token: 'mock-token' }, 700);
+
+  updateAdminSettings: (multiplier: number, maxTasks: number) => {
+    localStorage.setItem(
+      "orbit_admin_settings",
+      JSON.stringify({
+        commissionMultiplier: multiplier,
+        maxDailyTasks: maxTasks,
+      }),
+    );
   },
-  register: async (phone: string, password: string, invite?: string): Promise<RegisterResponse> => {
-    const id = 'u' + Math.floor(Math.random() * 10000);
-    const user: UserProfile = { id, phone, name: 'New User', email: undefined, verified: false, createdAt: new Date().toISOString(), role: 'user', balance: 0, kycLevel: 0 };
-    mockUsers[id] = user;
-    return delay({ success: true, user }, 900);
+
+  getDbUsers: (): Record<
+    string,
+    UserProfile & { balance: number; bonus: number }
+  > => {
+    return JSON.parse(localStorage.getItem("orbit_db_users") || "{}");
   },
-  sendResetCode: async (phone: string): Promise<ResetResponse> => {
-    // always return 1234 for simulation
-    return delay({ success: true, code: '1234' }, 800);
+
+  updateDbUser: (
+    id: string,
+    fields: Partial<UserProfile & { balance: number; bonus: number }>,
+  ) => {
+    const users = api.getDbUsers();
+    if (users[id]) {
+      users[id] = { ...users[id], ...fields };
+      localStorage.setItem("orbit_db_users", JSON.stringify(users));
+    }
   },
-  verifyResetCode: async (phone: string, code: string, newPassword: string): Promise<{ success: boolean }> => {
-    return delay({ success: code === '1234' }, 700);
+
+  login: async (phone: string, _pass: string): Promise<LoginResponse> => {
+    const users = api.getDbUsers();
+    const matched = Object.values(users).find((u) => u.phone === phone);
+    if (matched) return delay({ success: true, user: { ...matched } }, 600);
+
+    // Default fallback to auto-create standard profile if testing cleanly
+    if (phone === "+12345678") {
+      return delay({ success: true, user: users["admin"] }, 600);
+    }
+    return delay({ success: true, user: users["user1"] }, 600);
   },
-  fetchTaskMatch: async (): Promise<TaskMatch> => {
-    const matched: TaskMatch = {
-      orderId: 'ORD-' + Math.floor(Math.random() * 90000 + 10000),
-      title: 'Ocean View Suite - Stays Royale',
-      propertyImage: mockProperties[0].image,
-      location: 'Lisbon, PT',
-      nights: 2,
-      rating: 4.8,
-      baseValue: 12.0,
-      commission: Number((12.0 * settings.commissionMultiplier * 0.108333).toFixed(2))
+
+  register: async (
+    phone: string,
+    _pass: string,
+    _invite?: string,
+  ): Promise<RegisterResponse> => {
+    const id = "u_" + Math.floor(Math.random() * 9000 + 1000);
+    const newUser = {
+      id,
+      phone,
+      name: "Anastasia 👋",
+      verified: false,
+      createdAt: new Date().toISOString(),
+      role: "user" as const,
+      balance: 0,
+      bonus: 300.0,
     };
-    return delay(matched, 1200);
+
+    const users = api.getDbUsers();
+    users[id] = newUser;
+    localStorage.setItem("orbit_db_users", JSON.stringify(users));
+
+    return delay(
+      {
+        success: true,
+        user: {
+          id,
+          phone,
+          name: newUser.name,
+          verified: false,
+          createdAt: newUser.createdAt,
+          role: "user",
+        },
+      },
+      800,
+    );
   },
-  getUsers: async (): Promise<UserProfile[]> => {
-    return delay(Object.values(mockUsers), 400);
+
+  fetchTaskMatch: async (): Promise<TaskMatch> => {
+    const config = api.getAdminSettings();
+    const useVienna = Math.random() > 0.5;
+
+    const hotels = [
+      {
+        title: "Grand Hotel Wien",
+        loc: "Vienna, AT",
+        img: IMAGES.vienna,
+        base: 120.0,
+      },
+      {
+        title: "Hotel 1898",
+        loc: "Barcelona, ES",
+        img: IMAGES.barcelona,
+        base: 85.0,
+      },
+    ];
+
+    const selection = useVienna ? hotels[0] : hotels[1];
+    const generatedCommission = Number(
+      (selection.base * config.commissionMultiplier).toFixed(2),
+    );
+
+    return delay(
+      {
+        orderId: "ORD-" + Math.floor(Math.random() * 900000 + 100000),
+        title: selection.title,
+        propertyImage: selection.img,
+        location: selection.loc,
+        nights: 2,
+        rating: 4.9,
+        baseValue: selection.base,
+        commission: generatedCommission,
+      },
+      1100,
+    );
   },
-  adminOverrideBalance: async (userId: string, amount: number) => {
-    const u = mockUsers[userId];
-    if (!u) return delay({ success: false }, 300);
-    u.balance = amount;
-    return delay({ success: true, user: u }, 300);
-  },
-  updateSettings: async (patch: Partial<typeof settings>) => {
-    settings = { ...settings, ...patch };
-    return delay({ success: true, settings }, 200);
-  }
 };
