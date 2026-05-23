@@ -1,16 +1,27 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-import './index.css';
-import { Toaster } from 'sonner';
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+import "./index.css";
+import { Toaster } from "sonner";
 
-const root = createRoot(document.getElementById('root') as HTMLElement);
+const container = document.getElementById("root");
+if (!container) throw new Error("Failed to find root element");
+
+const root = createRoot(container);
+
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-    <Toaster />
-  </React.StrictMode>
+    <Toaster
+      position="top-right"
+      richColors
+      closeButton
+      toastOptions={{
+        style: { borderRadius: "12px" },
+      }}
+    />
+  </React.StrictMode>,
 );
